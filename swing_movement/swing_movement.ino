@@ -1,10 +1,8 @@
 #include <AccelStepper.h>
 
-// direction pi
+// pins for stepper motor
 #define X_DIR 7
-// step pin
 #define X_STP 4
-//enable pin
 #define EN 8
 
 // pins for encoder
@@ -12,12 +10,13 @@
 #define B_PULSE 2
 #define Z_PULSE 3
 
+// angle calculator
 int currState;
 int lastState;
-float angle;
-bool dirChange = false;
 int counter = 0;
+// stepper motor w acceleration
 AccelStepper stepper(AccelStepper::DRIVER, X_STP, X_DIR);
+// encoder info
 struct EncoderInfo {
   float angle;
   bool dirChange;
@@ -30,13 +29,12 @@ void setup()
   pinMode(X_STP, OUTPUT);
   pinMode(EN, OUTPUT);
   digitalWrite(EN, LOW);
-  
   Serial.begin(115200);
-  encoderInfo.angle = 0.0;
-  encoderInfo.dirChange = false;
-  encoderInfo.clockwise = false;
+  
   lastState = digitalRead(A_PULSE);
+  
   stepper.setEnablePin(4);
+  // need to finetune accel && maxspeed
   stepper.setMaxSpeed(750000);
   stepper.setAcceleration(60000);
   stepper.moveTo(2500);
@@ -46,16 +44,8 @@ void setup()
 void loop()
 {
   readEncoder(&encoderInfo);
-  if (encoderInfo.dirChange){
-    if (encoderInfo.clockwise) {
-      stepper.moveTo(2500);
-    }
-    else {
-      stepper.moveTo(0);
-    }
-    encoderInfo.dirChange = false;
-  }
-  stepper.run();
+  // if angle is not PID ready, swing up, else PID & balance
+  swingUp();
 }
 
 /**
@@ -80,4 +70,27 @@ void readEncoder(EncoderInfo *encoderInfo){
   }
   lastState = currState;
   encoderInfo->angle = counter%1024/1024.0*360.0;
+}
+
+/**
+ * Swing up for the pendulum
+ * 
+ * Moves left or right depending on current direction of the swing
+ */
+void swingUp(){
+  if (encoderInfo.dirChange){
+    if (encoderInfo.clockwise) {
+      stepper.moveTo(2500);
+    }
+    else {
+      stepper.moveTo(0);
+    }
+    encoderInfo.dirChange = false;
+  }
+  stepper.run();
+  Serial.println(stepper.speed());
+}
+
+void balance() {
+  return;
 }
