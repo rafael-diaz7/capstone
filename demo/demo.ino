@@ -64,5 +64,5 @@ void readEncoder(){
     else { counter--; }
   }
   lastState = currState;
-  if (counter % 4 == 0){ angle = counter%1024/1024.0*360.0; }
+  if (counter % 8 == 0){ Serial.println((counter/2%1024)/1024.0*360.0); }
 }

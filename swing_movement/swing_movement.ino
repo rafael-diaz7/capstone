@@ -35,10 +35,9 @@ void setup()
   
   stepper.setEnablePin(4);
   // need to finetune accel && maxspeed
-  stepper.setMaxSpeed(750000);
-  stepper.setAcceleration(60000);
-  stepper.moveTo(2500);
-  stepper.run();
+  stepper.setMaxSpeed(500000);
+  stepper.setAcceleration(45000);
+  stepper.moveTo(-2500);
 }
  
 void loop()
@@ -46,6 +45,7 @@ void loop()
   readEncoder(&encoderInfo);
   // if angle is not PID ready, swing up, else PID & balance
   swingUp();
+  stepper.run();
 }
 
 /**
@@ -69,7 +69,7 @@ void readEncoder(EncoderInfo *encoderInfo){
       }
   }
   lastState = currState;
-  encoderInfo->angle = counter%1024/1024.0*360.0;
+  encoderInfo->angle = (counter/2%1024)/1024.0*360.0;
 }
 
 /**
@@ -78,17 +78,16 @@ void readEncoder(EncoderInfo *encoderInfo){
  * Moves left or right depending on current direction of the swing
  */
 void swingUp(){
-  if (encoderInfo.dirChange){
+  if (encoderInfo.dirChange && encoderInfo.angle == 0.0){
     if (encoderInfo.clockwise) {
-      stepper.moveTo(2500);
+      stepper.moveTo(-2500);
     }
     else {
       stepper.moveTo(0);
     }
     encoderInfo.dirChange = false;
+    
   }
-  stepper.run();
-  Serial.println(stepper.speed());
 }
 
 void balance() {
