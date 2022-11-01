@@ -28,14 +28,14 @@ struct EncoderInfo {
 
 // OSSIILICATION WHEN Ku = 35, TU = 0.5
 // PID
-//const float KU = 35;
-//const float TU = .5;
-//const float P0 = 0.6 * KU;
-//const float I0 = 1.2 * KU / TU;
-//const float D0 = 3 * KU * TU / 40;
-const float P0 = 25;
-const float I0 = 90;
-const float D0 = 1.8;
+const float KU = 35;
+const float TU = .5;
+const float P0 = 0.6 * KU;
+const float I0 = 1.2 * KU / TU;
+const float D0 = 3 * KU * TU / 40;
+//const float P0 = 25;
+//const float I0 = 90;
+//const float D0 = 1.8;
 const float C0 = .01;
 const int SAMPLE_SIZE = 20;
 int indexer = 0;
