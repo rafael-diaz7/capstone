@@ -33,14 +33,14 @@ struct EncoderInfo {
 //const float P0 = 0.45 * KU;
 //const float I0 = 0.54 * KU / TU;
 
-const float KU = 35;
-const float TU = 0.5;
-const float P0 = 0.6 * KU;
-const float I0 = 1.2 * KU / TU;
-const float D0 = 3 * KU * TU / 40;
-//const float P0 = 25;
-//const float I0 = 90;
-//const float D0 = 1.8;
+//const float KU = 35;
+//const float TU = 0.5;
+//const float P0 = 0.6 * KU;
+//const float I0 = 1.2 * KU / TU;
+//const float D0 = 3 * KU * TU / 40;
+const float P0 = 25;
+const float I0 = 90;
+const float D0 = 1.1; //1.8
 
 const float C0 = .01;
 const int SAMPLE_SIZE = 20;
@@ -150,20 +150,20 @@ float PID() {
   
   // instead of summing with a loop, we save time by just always saving a sum and just subtracting and adding as needed
   integralSum -= integrals[indexer];
-  integrals[indexer] = theta_error * delta_t;
+  integrals[indexer] = theta_error_sqr * delta_t;
   integralSum += integrals[indexer];
-  float integral = theta_error_sqr * delta_t;
+  //float integral = theta_error_sqr * delta_t;
 
   derivativesSum -= derivatives[indexer];
   derivatives[indexer] = (encoderInfo.angle - lastAngle) / delta_t;
   derivativesSum += derivatives[indexer++];
-  float derivative = (encoderInfo.angle - lastAngle) / delta_t;
+  //float derivative = (encoderInfo.angle - lastAngle) / delta_t;
   
   // check if we are out of bounds, if so, reset to 0
   if (indexer >= SAMPLE_SIZE){
     indexer = 0;
   }
-  return  C0 * (P0 * theta_error + I0 * integralSum + D0 * derivativesSum);
+  return  C0 * (P0 * theta_error_sqr + I0 * integralSum + D0 * derivativesSum);
   //return  C0 * P0 * theta_error_sqr;//C0 * (P0 * theta_error_sqr + I0 * integral + D0 * derivative);
   //return C0 * (P0 * theta_error_sqr + I0 * integral);// + D0 * derivative);
   
