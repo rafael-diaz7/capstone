@@ -32,7 +32,14 @@ void setup() {
  * code here will run infinitely unless exited
  */
 void loop() {
-  readEncoder();
+  for (int i = 0; i < 20; i++){
+    int temp = digitalRead(i);
+    if (temp){
+      Serial.println(i);
+    }
+  }
+  delay(2000);
+//  readEncoder();
 }
 
 /**
