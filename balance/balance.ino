@@ -13,7 +13,7 @@
 // angle calculator
 int currState;
 int lastState;
-volatile int counter = 0;
+int counter = 0;
 
 // stepper motor w acceleration
 AccelStepper stepper(AccelStepper::DRIVER, X_STP, X_DIR);
@@ -28,31 +28,22 @@ struct EncoderInfo {
 
 // OSCILLATION WHEN Ku = 35, TU = 0.5
 // PID
-//const float KU = 3000;
-//const float TU = 0.3;
-//const float P0 = 0.45 * KU;
-//const float I0 = 0.54 * KU / TU;
 
-const float KU = 35;
-const float TU = 0.5;
-const float P0 = 0.6 * KU;
-const float I0 = 1.2 * KU / TU;
-const float D0 = 3 * KU * TU / 40;
-int lastPID = 0;
-//const float P0 = 25;
-//const float I0 = 90;
-//const float D0 = 1.8;
+//const float P0 = 1500;
+//const float I0 = 20;
+//const float D0 = 20;
+//const float C0 = .01;
 
-const float C0 = .01;
-const int SAMPLE_SIZE = 20;
-int indexer = 0;
-float integrals[SAMPLE_SIZE];
-float derivatives[SAMPLE_SIZE];
+const float P0 = 1;
+const float I0 = .2;
+const float D0 = .35;
+
+//const int SAMPLE_SIZE = 20;
+//int indexer = 0;
+//float integrals[SAMPLE_SIZE];
+//float derivatives[SAMPLE_SIZE];
 float pastTime;
 float lastAngle;
-float integralSum;
-float derivativesSum;
-float accelerationPID;
 int locationPID;
 
 void setup()
@@ -69,8 +60,6 @@ void setup()
   stepper.setEnablePin(4);
   stepper.setMaxSpeed(500000);
   stepper.setAcceleration(40000);
-
-  attachInterrupt(digitalPinToInterrupt(B_PULSE), readEncoder, CHANGE);
   
   //stepper.moveTo(-2500);
 }
@@ -83,14 +72,14 @@ void setup()
 void loop()
 {
   readEncoder();
-//  locationPID = PID();
-//  if (150 < encoderInfo.angle && encoderInfo.angle < 210) {
-//    balance();
+  if (150 < encoderInfo.angle && encoderInfo.angle < 210) {
+    locationPID = PID();
+    balance();
+  }
+//  else{
+//    swingUp();
 //  }
-////  else{
-////    swingUp();
-////  }
-//  stepper.run();
+   stepper.run();
 }
 
 /**
@@ -106,18 +95,15 @@ void readEncoder(){
     encoderInfo.dirChange = true;
     if (digitalRead(B_PULSE) != currState) { 
       counter++; 
-      encoderInfo.clockwise = true;
+      encoderInfo.clockwise = true; // true
       }
     else { 
       counter--;
-      encoderInfo.clockwise = false;      
+      encoderInfo.clockwise = false; // false 
       }
   }
   lastState = currState;
   encoderInfo.angle = abs(counter/2%1024/1024.0*360.0);
-  if (counter % 8 == 0) {
-    Serial.println(encoderInfo.angle);
-  }
 }
 
 /**
@@ -150,31 +136,17 @@ void balance() {
 }
 
 float PID() {
-  // lowercase delta theta
+  // delta theta
   float theta_error = 180 - encoderInfo.angle;
   float theta_error_sqr = theta_error * fabs(theta_error);
   float delta_t = micros() - pastTime;
   pastTime = micros();
   
-  // instead of summing with a loop, we save time by just always saving a sum and just subtracting and adding as needed
-  integralSum -= integrals[indexer];
-  integrals[indexer] = theta_error * delta_t;
-  integralSum += integrals[indexer];
-
-  derivativesSum -= derivatives[indexer];
-  derivatives[indexer] = (encoderInfo.angle - lastAngle) / delta_t;
-  derivativesSum += derivatives[indexer++];
+  float integral = theta_error_sqr * delta_t;
+  float derivative = (encoderInfo.angle - lastAngle) / delta_t;
 
   lastAngle = encoderInfo.angle;
-  
-  // check if we are out of bounds, if so, reset to 0
-  if (indexer >= SAMPLE_SIZE){
-    indexer = 0;
-  }
 
-  return  C0 * (P0 * theta_error + I0 * integralSum + D0 * derivativesSum);
-  //return  C0 * P0 * theta_error_sqr;//C0 * (P0 * theta_error_sqr + I0 * integral + D0 * derivative);
-  //return C0 * (P0 * theta_error_sqr + I0 * integral);// + D0 * derivative);
-  
+  return P0 * theta_error_sqr + I0 * integral + D0 * derivative;
   
 }
