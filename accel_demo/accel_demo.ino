@@ -12,6 +12,8 @@
 
  AccelStepper stepper(AccelStepper::DRIVER, X_STP, X_DIR);
 
+ int accels [] = {100, 1000, 2500, 5000, 10000, 25000, 50000};
+
  void setup()
  {  
    pinMode(X_DIR, OUTPUT);
@@ -21,17 +23,17 @@
 
    Serial.begin(115200);
    stepper.setEnablePin(4);
-   stepper.setMaxSpeed(500000);
-   stepper.setAcceleration(40000);
-   stepper.moveTo(-500);
  }
 
  void loop()
  {
-  //Serial.println(stepper.distanceToGo());
-   // If the cart reaches the end, return to the starting position
-   if (stepper.distanceToGo() == 0)
-     stepper.moveTo(0);
-
-   stepper.run();
+  for (int i : accels){
+    displayAccel(i);
+   }
  }
+
+void displayAccel(int acceleration){
+  stepper.setAcceleration(acceleration);
+  stepper.runToNewPosition(-2500);
+  stepper.runToNewPosition(0);
+}
