@@ -1,7 +1,9 @@
 # Balancing an Inverted Pendulum on a Cart: Capstone F2022
 
 This repository holds all code I worked on for my CS capstone. The goal of the capstone was to balance an inverted pendulum on a cart utilizing an Elegoo Uno R3.
-Prior to this project, I had no experience with any sort of hardware and arduino so this was a learning process. In this README, I will detail the contents of each file in the order they were worked on,
+Prior to this project, I had no experience with any sort of hardware and arduino so this was a learning process. In this README, I will detail the contents of each file in the order they were worked on.
+
+![pendulum](https://user-images.githubusercontent.com/58955553/206896277-b117b14c-d1c7-4db3-b9a5-889fe3df3e21.png)
 
 ### 1. blink.ino
 This is the "Hello world!" equivalent to the arduino. Since this was my first time working with it, I thought it was necessary to start with this as well as document it.
